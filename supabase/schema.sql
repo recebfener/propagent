@@ -25,9 +25,17 @@ create table if not exists properties (
   lease_start date,
   lease_end   date,
   notes       text default '',
+  parcel_no   text default '',
+  zoning_status text default 'konut',
+  deed_status text default 'tapulu',
   created_at  timestamptz default now(),
   updated_at  timestamptz default now()
 );
+
+-- Mevcut tabloya yeni arsa sütunları ekle (güvenle çalışır)
+alter table properties add column if not exists parcel_no text default '';
+alter table properties add column if not exists zoning_status text default 'konut';
+alter table properties add column if not exists deed_status text default 'tapulu';
 
 -- Giderler tablosu (property ile 1-N ilişki)
 create table if not exists property_expenses (
@@ -70,28 +78,55 @@ create table if not exists tenant_payments (
   unique(property_id, month)
 );
 
+-- Kullanıcı profilleri tablosu
+create table if not exists profiles (
+  id          uuid primary key references auth.users(id) on delete cascade,
+  first_name  text default '',
+  last_name   text default '',
+  phone       text default '',
+  company     text default '',
+  updated_at  timestamptz default now()
+);
+
 -- Row Level Security (her kullanıcı sadece kendi verilerini görür)
 alter table properties enable row level security;
 alter table property_expenses enable row level security;
 alter table market_listings enable row level security;
 alter table tenant_payments enable row level security;
+alter table profiles enable row level security;
 
 -- RLS Policies
-create policy "properties_own" on properties
-  for all using (auth.uid() = user_id);
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename='properties' and policyname='properties_own') then
+    create policy "properties_own" on properties for all using (auth.uid() = user_id);
+  end if;
+end $$;
 
-create policy "expenses_own" on property_expenses
-  for all using (
-    property_id in (select id from properties where user_id = auth.uid())
-  );
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename='property_expenses' and policyname='expenses_own') then
+    create policy "expenses_own" on property_expenses
+      for all using (property_id in (select id from properties where user_id = auth.uid()));
+  end if;
+end $$;
 
-create policy "market_listings_own" on market_listings
-  for all using (auth.uid() = user_id);
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename='market_listings' and policyname='market_listings_own') then
+    create policy "market_listings_own" on market_listings for all using (auth.uid() = user_id);
+  end if;
+end $$;
 
-create policy "tenant_payments_own" on tenant_payments
-  for all using (
-    property_id in (select id from properties where user_id = auth.uid())
-  );
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename='tenant_payments' and policyname='tenant_payments_own') then
+    create policy "tenant_payments_own" on tenant_payments
+      for all using (property_id in (select id from properties where user_id = auth.uid()));
+  end if;
+end $$;
+
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename='profiles' and policyname='profiles_own') then
+    create policy "profiles_own" on profiles for all using (auth.uid() = id);
+  end if;
+end $$;
 
 -- updated_at otomatik güncelleme trigger'ı
 create or replace function set_updated_at()
@@ -102,6 +137,10 @@ begin
 end;
 $$;
 
-create trigger properties_updated_at
-  before update on properties
-  for each row execute function set_updated_at();
+do $$ begin
+  if not exists (select 1 from pg_trigger where tgname='properties_updated_at') then
+    create trigger properties_updated_at
+      before update on properties
+      for each row execute function set_updated_at();
+  end if;
+end $$;

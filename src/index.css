@@ -1,4 +1,56 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; color: #111; }
-input, select, textarea { font-family: inherit; }
-button { font-family: inherit; }
+body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #0f172a; }
+input, select, textarea, button { font-family: inherit; }
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12) !important;
+}
+
+.btn-primary {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(37,99,235,0.35) !important;
+  filter: brightness(1.07);
+}
+.btn-primary:active:not(:disabled) { transform: translateY(0) !important; }
+
+.btn-secondary {
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.btn-danger {
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #fee2e2 !important;
+}
+
+.prop-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+.prop-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.11) !important;
+}
+
+.stat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.09) !important;
+}
+
+.nav-btn { transition: all 0.15s; }
+.nav-btn:hover { opacity: 0.85; }
+
+.ac-option { transition: background 0.1s; }
+.ac-option:hover { background: #eff6ff !important; color: #1d4ed8; }

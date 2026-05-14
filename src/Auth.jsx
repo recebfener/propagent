@@ -1,6 +1,23 @@
 import { useState } from "react";
 import { useAuth } from "./contexts/AuthContext";
 
+function AuthLogo() {
+  return (
+    <svg width="52" height="52" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="10" fill="url(#authgrad)"/>
+      <path d="M18 7.5L7.5 15v14h7.5v-7.5h6V29H28.5V15L18 7.5z" fill="white" fillOpacity="0.97"/>
+      <rect x="13.5" y="18" width="3.5" height="3.5" rx="0.8" fill="#1e3a8a" fillOpacity="0.35"/>
+      <rect x="19" y="18" width="3.5" height="3.5" rx="0.8" fill="#1e3a8a" fillOpacity="0.35"/>
+      <defs>
+        <linearGradient id="authgrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#1e3a8a"/>
+          <stop offset="1" stopColor="#3b82f6"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
 export default function Auth() {
   const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState("login");
@@ -39,7 +56,7 @@ export default function Auth() {
       <div style={{ width: "100%", maxWidth: 400 }}>
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <div style={{ width: 52, height: 52, background: "#1e3a5f", borderRadius: 14, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 26, marginBottom: 12 }}>🏢</div>
+          <div style={{ display: "inline-flex", marginBottom: 12 }}><AuthLogo /></div>
           <div style={{ fontSize: 22, fontWeight: 700, color: "#111" }}>PropAgent</div>
           <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 3 }}>Emlak yatırım platformu</div>
         </div>
