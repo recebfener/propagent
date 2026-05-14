@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:\\\\Users\\\\rifor\\\\OneDrive\\\\Desktop\\\\propagent\\\\supabase\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\rifor\\\\OneDrive\\\\Desktop\\\\propagent\\\\src\\\\lib\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\rifor\\\\OneDrive\\\\Desktop\\\\propagent\\\\src\\\\contexts\")",
+      "Bash(npm run *)"
+    ]
+  }
+}
