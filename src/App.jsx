@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { analyzeMulk } from "./gemini";
 import MarketCompare from "./MarketCompare";
+import TenantPayments from "./TenantPayments";
 import Auth from "./Auth";
 import { useAuth } from "./contexts/AuthContext";
 import { supabase } from "./lib/supabase";
@@ -342,6 +343,7 @@ export default function App() {
         <nav style={{ display: "flex", gap: 4, background: "#f3f4f6", borderRadius: 10, padding: 4 }}>
           {navBtn("dashboard", "📊 Dashboard")}
           {navBtn("portfolio", "📋 Portföy")}
+          {navBtn("tenants", "🏘️ Kiracılar")}
           {navBtn("market", "🔍 Pazar")}
         </nav>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -456,6 +458,10 @@ export default function App() {
             )}
             <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 10 }}>Net getiriye göre sıralanmış.</p>
           </>
+        )}
+
+        {!dbLoading && view === "tenants" && (
+          <TenantPayments properties={properties} />
         )}
 
         {!dbLoading && view === "market" && (

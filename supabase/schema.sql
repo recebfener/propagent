@@ -57,10 +57,24 @@ create table if not exists market_listings (
   created_at  timestamptz default now()
 );
 
+-- Kiracı ödemeleri tablosu
+create table if not exists tenant_payments (
+  id          uuid primary key default gen_random_uuid(),
+  property_id uuid references properties(id) on delete cascade not null,
+  month       text not null,        -- 'YYYY-MM' formatı
+  amount      numeric not null default 0,
+  status      text not null default 'pending',  -- 'paid' | 'overdue' | 'pending'
+  paid_at     timestamptz,
+  notes       text default '',
+  created_at  timestamptz default now(),
+  unique(property_id, month)
+);
+
 -- Row Level Security (her kullanıcı sadece kendi verilerini görür)
 alter table properties enable row level security;
 alter table property_expenses enable row level security;
 alter table market_listings enable row level security;
+alter table tenant_payments enable row level security;
 
 -- RLS Policies
 create policy "properties_own" on properties
@@ -73,6 +87,11 @@ create policy "expenses_own" on property_expenses
 
 create policy "market_listings_own" on market_listings
   for all using (auth.uid() = user_id);
+
+create policy "tenant_payments_own" on tenant_payments
+  for all using (
+    property_id in (select id from properties where user_id = auth.uid())
+  );
 
 -- updated_at otomatik güncelleme trigger'ı
 create or replace function set_updated_at()
