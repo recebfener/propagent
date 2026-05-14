@@ -5,6 +5,7 @@ import TenantPayments from "./TenantPayments";
 import Auth from "./Auth";
 import { useAuth } from "./contexts/AuthContext";
 import { supabase } from "./lib/supabase";
+import FinancialPanel from "./FinancialPanel";
 import "./index.css";
 
 function mapProperty({ property_expenses, ...p }) {
@@ -279,6 +280,19 @@ export default function App() {
     return mt && ms;
   }), [properties, filter, search]);
 
+  const leaseAlerts = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return properties
+      .filter(p => p.lease_end)
+      .map(p => {
+        const diff = Math.floor((new Date(p.lease_end) - today) / 86400000);
+        return { ...p, daysLeft: diff };
+      })
+      .filter(p => p.daysLeft <= 30)
+      .sort((a, b) => a.daysLeft - b.daysLeft);
+  }, [properties]);
+
   const save = async (p) => {
     setSaveError("");
     const { id, expenses, property_expenses: _pe, created_at: _ca, updated_at: _ua, user_id: _uid, ...fields } = p;
@@ -371,6 +385,30 @@ export default function App() {
 
         {!dbLoading && view === "dashboard" && (
           <>
+            {leaseAlerts.length > 0 && (
+              <div style={{ marginBottom: "1.5rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                  <h2 style={{ fontSize: 15, fontWeight: 700, margin: 0, color: "#111" }}>Sözleşme Uyarıları</h2>
+                  <span style={{ fontSize: 11, fontWeight: 700, background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", padding: "2px 8px", borderRadius: 99 }}>{leaseAlerts.length}</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 10 }}>
+                  {leaseAlerts.map(p => {
+                    const expired = p.daysLeft < 0;
+                    return (
+                      <div key={p.id} style={{ background: expired ? "#fef2f2" : "#fffbeb", border: `1px solid ${expired ? "#fecaca" : "#fde68a"}`, borderLeft: `4px solid ${expired ? "#dc2626" : "#f59e0b"}`, borderRadius: 10, padding: "12px 14px" }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#111", marginBottom: 4 }}>{p.title}</div>
+                        <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 6 }}>{p.district}{p.tenant_name ? ` · 👤 ${p.tenant_name}` : ""}</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: expired ? "#dc2626" : "#d97706" }}>
+                          {expired ? `⚠️ Sözleşme ${Math.abs(p.daysLeft)} gün önce sona erdi` : `⏳ Sözleşme bitimine ${p.daysLeft} gün kaldı`}
+                        </div>
+                        {p.lease_end && <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>Bitiş tarihi: {p.lease_end}</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 12, marginBottom: "1.5rem" }}>
               {[["🏠", "Toplam mülk", stats.total, "portföyde", "#3b82f6"], ["💎", "Portföy değeri", `₺${fmt(stats.totalValue)}`, "toplam", "#8b5cf6"], ["💰", "Aylık kira", `₺${fmt(stats.totalRent)}`, "brüt gelir", "#10b981"], ["📈", "Ort. net getiri", `%${stats.avgNet.toFixed(2)}`, yieldLabel(stats.avgNet), yieldColor(stats.avgNet).dot], ["👥", "Doluluk", `${stats.occupied}/${stats.total}`, "aktif kiracı", "#f59e0b"]].map(([icon, label, value, sub, accent]) => (
                 <div key={label} style={{ background: "#fff", borderRadius: 12, padding: "1rem 1.1rem", borderTop: `3px solid ${accent}`, border: "1px solid #e5e7eb", borderTopWidth: 3 }}>
@@ -380,6 +418,8 @@ export default function App() {
                 </div>
               ))}
             </div>
+
+            <FinancialPanel properties={properties} />
 
             <div style={{ display: "grid", gridTemplateColumns: selectedProp ? "minmax(0,1fr) 400px" : "1fr", gap: "1.25rem" }}>
               <div>

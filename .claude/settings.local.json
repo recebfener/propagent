@@ -5,7 +5,8 @@
       "Bash(mkdir -p \"C:\\\\Users\\\\rifor\\\\OneDrive\\\\Desktop\\\\propagent\\\\src\\\\lib\")",
       "Bash(mkdir -p \"C:\\\\Users\\\\rifor\\\\OneDrive\\\\Desktop\\\\propagent\\\\src\\\\contexts\")",
       "Bash(npm run *)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "PowerShell(cd \"C:\\\\Users\\\\rifor\\\\OneDrive\\\\Desktop\\\\propagent\"; Get-ChildItem -Force | Format-Table Name, @{Name=\"Type\"; Expression={if\\($_.PSIsContainer\\){\"Folder\"}else{\"File\"}}} -AutoSize)"
     ]
   }
 }
