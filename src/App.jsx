@@ -280,9 +280,9 @@ export default function App() {
 
   const save = async (p) => {
     setSaveError("");
-    const { expenses, property_expenses: _pe, created_at: _ca, updated_at: _ua, user_id: _uid, ...fields } = p;
+    const { id, expenses, property_expenses: _pe, created_at: _ca, updated_at: _ua, user_id: _uid, ...fields } = p;
 
-    let propertyId = p.id || null;
+    let propertyId = id || null;
     if (propertyId) {
       const { error } = await supabase.from("properties").update(fields).eq("id", propertyId);
       if (error) { setSaveError("Kayıt hatası: " + error.message); return; }
